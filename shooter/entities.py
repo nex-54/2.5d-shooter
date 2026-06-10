@@ -16,7 +16,13 @@ from shooter.constants import (
     SPAWN_ENEMY_MIN_DIST, SPAWN_PICKUP_MIN_DIST,
 )
 from shooter import map as gmap
-from shooter.map import MAZE, MAP_H, MAP_W, is_obstacle, has_line_of_sight
+from shooter.map import MAZE, MAP_H, MAP_W, EXIT_TILE, tile_at, is_obstacle, has_line_of_sight
+
+
+def _blocks_enemy(x: float, y: float) -> bool:
+    """Movement blocker for enemies: also treats the exit tile as solid, since it
+    renders as a closed door and an enemy inside it would be invisible."""
+    return is_obstacle(x, y) or tile_at(x, y) == EXIT_TILE
 
 
 # ---------------------------------------------------------------------------
@@ -124,9 +130,9 @@ class Enemy:
                 speed = self.speed * dt
                 nx = self.x + dx * speed
                 ny = self.y + dy * speed
-                if not is_obstacle(nx, self.y):
+                if not _blocks_enemy(nx, self.y):
                     self.x = nx
-                if not is_obstacle(self.x, ny):
+                if not _blocks_enemy(self.x, ny):
                     self.y = ny
             else:
                 self._wander(dt)
@@ -144,7 +150,7 @@ class Enemy:
         wy = math.sin(self.wander_angle) * speed
         nx = self.x + wx
         ny = self.y + wy
-        if is_obstacle(nx, self.y) or is_obstacle(self.x, ny):
+        if _blocks_enemy(nx, self.y) or _blocks_enemy(self.x, ny):
             self.wander_angle = random.uniform(0, 2 * math.pi)
             self.wander_timer = random.randint(*self.wall_wander_timer_range)
         else:

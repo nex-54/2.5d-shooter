@@ -230,26 +230,16 @@ def handle_events(state: GameState, sfx: Sfx,
                 return False
             if event.scancode == pygame.KSCAN_R and state.game_over:
                 reset_game(state)
-            if event.key == pygame.K_1 and not state.game_over and state.owned[0]:
-                state.weapon = 0
-                state.shoot_timer = 0
-                state.shooting = False
-            if event.key == pygame.K_2 and not state.game_over and state.owned[1]:
-                state.weapon = 1
-                state.shoot_timer = 0
-                state.shooting = False
-            if event.key == pygame.K_3 and not state.game_over and state.owned[2]:
-                state.weapon = 2
-                state.shoot_timer = 0
-                state.shooting = False
-            if event.key == pygame.K_4 and not state.game_over and state.owned[3]:
-                state.weapon = 3
-                state.shoot_timer = 0
-                state.shooting = False
-            if event.key == pygame.K_0 and not state.game_over and state.owned[4]:
-                state.weapon = 4
-                state.shoot_timer = 0
-                state.shooting = False
+            # Reset the fire cooldown only on an actual switch — re-pressing the
+            # equipped weapon's key must not zero shoot_timer (rate-of-fire bypass).
+            weapon_keys = {pygame.K_1: 0, pygame.K_2: 1, pygame.K_3: 2,
+                           pygame.K_4: 3, pygame.K_0: 4}
+            if event.key in weapon_keys and not state.game_over:
+                new_weapon = weapon_keys[event.key]
+                if state.owned[new_weapon] and state.weapon != new_weapon:
+                    state.weapon = new_weapon
+                    state.shoot_timer = 0
+                    state.shooting = False
             if event.scancode == pygame.KSCAN_E and not state.game_over:
                 door_pos = find_door_in_front(state.px, state.py, state.pa)
                 if door_pos and door_pos not in state.door_anim:

@@ -269,9 +269,11 @@ def generate_level(level: int) -> None:
     grid[1][1] = 0  # guarantee player start is floor
 
     ex, ey = _place_exit(grid)
-    bx, by = _pick_boss_tile(grid, ex, ey)
     doors = _place_doors(grid, random.randint(3, 5))
     _place_barriers(grid, random.randint(1, 3), ex, ey)
+    # Pick the boss tile last so a door or barrier can't land on it and trap
+    # the boss inside a solid tile (the exit only unlocks once the boss dies).
+    bx, by = _pick_boss_tile(grid, ex, ey)
 
     MAZE.clear()
     MAZE.extend(grid)
