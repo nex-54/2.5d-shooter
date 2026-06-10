@@ -36,6 +36,12 @@ pip install -r requirements.txt
 ## Running
 
 ```bash
+./run.sh
+```
+
+Or, with the venv activated:
+
+```bash
 python shooter.py
 # or, equivalently
 python -m shooter
